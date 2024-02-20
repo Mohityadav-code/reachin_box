@@ -6,10 +6,28 @@ const { authenticate } = require('@google-cloud/local-auth');
 const { google } = require('googleapis');
 const { OpenAI } = require('openai');
 
+const { Queue } = require("bullmq");
+
+const notificationQueue = new Queue ("email-queue" ,{
+    connection: {
+    host: "localhost",
+    port: 6379,
+    },
+});
+async function init() {
+const res = await notificationQueue.add ("email to mohit", {
+email: "mohityadav3552@gmail.com", subject: "This is subject", body: "hiiiiii",});
+console. log ("Job added to queue", res. id);
+}
+init()
+
+
+
+
 async function getSentimentsOfMail(emailDetails) {
 
     const openai = new OpenAI({
-        apiKey: "sk-RvK#############"
+        apiKey: "sk-###########"
     });
     const newEmailsWithSentiment = [];
     for (const email of emailDetails) {
@@ -20,11 +38,11 @@ async function getSentimentsOfMail(emailDetails) {
         });
 
 
-
+        
 
         console.log(completion.choices[0]);
         const sentiment = completion.choices[0];
-
+        
         newEmailsWithSentiment.push({
             ...email,
             sentiment: sentiment 
@@ -108,7 +126,7 @@ async function fetchNewEmails(auth) {
     return emailDetails.map(email => ({
         id: email.data.id,
         snippet: email.data.snippet,
-        // add any other fields you need from email.data
+         
     }));
 
 
